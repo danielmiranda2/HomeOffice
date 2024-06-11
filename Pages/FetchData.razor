@@ -1,57 +1,81 @@
 ﻿@page "/fetchdata"
-@inject HttpClient Http
+@using HomeOffice.Models
+@inject IScheduleService ScheduleService
 
-<PageTitle>Weather forecast</PageTitle>
+<h1>Escalas de Home Office</h1>
 
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
-
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Colaboradores Escalados</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var schedule in schedules)
+        {
             <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <td>@schedule.Date.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <EmployeeList Employees="schedule.Employees" />
+                </td>
+                <td>
+                    @if (schedule.IsClosed)
+                    {
+                        <span class="badge bg-success">Concluída</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Aberta</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" @onclick="() => ViewScheduleDetails(schedule)">
+                            <i class="bi bi-eye"></i> Detalhes
+                        </button>
+                        <button class="btn btn-warning" @onclick="() => EditSchedule(schedule)">
+                            <i class="bi bi-pencil"></i> Editar
+                        </button>
+                        <button class="btn btn-danger" @onclick="() => DeleteSchedule(schedule)">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                    </div>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private List<Schedule> schedules;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        schedules = await ScheduleService.GetAllSchedulesAsync();
     }
 
-    public class WeatherForecast
+    private async Task ViewScheduleDetails(Schedule schedule)
     {
-        public DateOnly Date { get; set; }
+        // Lógica para visualizar os detalhes da escala
+        var selectedSchedule = await ScheduleService.GetScheduleByIdAsync(schedule.Id);
+        // Navegue para a página de detalhes da escala
+    }
 
-        public int TemperatureC { get; set; }
+    private async Task EditSchedule(Schedule schedule)
+    {
+        // Lógica para editar a escala
+        var scheduleToEdit = await ScheduleService.GetScheduleByIdAsync(schedule.Id);
+        // Navegue para a página de edição da escala
+    }
 
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    private async Task DeleteSchedule(Schedule schedule)
+    {
+        // Lógica para excluir a escala
+        await ScheduleService.DeleteScheduleAsync(schedule.Id);
+        schedules.Remove(schedule);
+        StateHasChanged();
     }
 }
