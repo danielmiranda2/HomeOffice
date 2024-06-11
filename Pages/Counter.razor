@@ -1,21 +1,18 @@
 ﻿@page "/counter"
 
-<h1>Escala de Home Office</h1>
+<PageTitle>Counter</PageTitle>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Escala de Hoje</h5>
-        <p class="card-text">
-            <strong>Data:</strong> @DateTime.Today.ToString("dd/MM/yyyy")
-        </p>
-        <hr />
-        <h6>Colaboradores Escalados</h6>
-        <EmployeeList Employees="GetEmployeesForToday()" />
-        <hr />
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-primary" @onclick="MarkPresence">
-                Marcar Presença
-            </button>
-        </div>
-    </div>
-</div>
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
